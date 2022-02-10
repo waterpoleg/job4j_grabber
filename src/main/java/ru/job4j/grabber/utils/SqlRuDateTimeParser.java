@@ -11,6 +11,9 @@ public class SqlRuDateTimeParser implements DateTimeParser {
     private static final String TODAY = "сегодня";
     private static final String YESTERDAY = "вчера";
 
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("d MM yy");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
     private static final Map<String, String> MONTHS = Map.ofEntries(
             Map.entry("янв", "01"),
             Map.entry("фев", "02"),
@@ -30,17 +33,15 @@ public class SqlRuDateTimeParser implements DateTimeParser {
     public LocalDateTime parse(String sqlDate) {
         String[] data = sqlDate.split(", ");
         String[] time = data[0].split(" ");
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("d M yy");
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         LocalDate localDate;
-        LocalTime localTime = LocalTime.parse(data[1], timeFormatter);
+        LocalTime localTime = LocalTime.parse(data[1], TIME_FORMATTER);
         if (TODAY.equals(time[0])) {
             localDate = LocalDate.now();
         } else if (YESTERDAY.equals(time[0])) {
             localDate = LocalDate.now().minusDays(1);
         } else {
             localDate = LocalDate.parse(String.format("%s %s %s",
-                    time[0], MONTHS.get(time[1]), time[2]), dateTimeFormatter);
+                    time[0], MONTHS.get(time[1]), time[2]), DATE_FORMATTER);
         }
         return LocalDateTime.of(localDate, localTime);
     }
