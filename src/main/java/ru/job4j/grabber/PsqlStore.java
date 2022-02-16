@@ -102,10 +102,13 @@ public class PsqlStore implements Store, AutoCloseable {
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
         Parse sqlRuParse = new SqlRuParse(new SqlRuDateTimeParser());
-        Store store = new PsqlStore(getProperties());
-        List<Post> posts = sqlRuParse.list("https://www.sql.ru/forum/job-offers/");
-        posts.forEach(store::save);
-        List<Post> postsFromDb = store.getAll();
-        postsFromDb.forEach(System.out::println);
+        try (PsqlStore store = new PsqlStore(getProperties())) {
+            List<Post> posts = sqlRuParse.list("https://www.sql.ru/forum/job-offers/");
+            posts.forEach(store::save);
+            List<Post> postsFromDb = store.getAll();
+            postsFromDb.forEach(System.out::println);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
